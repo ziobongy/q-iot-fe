@@ -14,7 +14,7 @@ export default function ManageSensor() {
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     useEffect(() => {
         if (params != null && params.sensorId != null) {
-            axios.get("http://localhost:8080/sensor/" + params.sensorId).then((response: AxiosResponse) => {
+            axios.get("/sensor/" + params.sensorId).then((response: AxiosResponse) => {
                 setSensor(response.data);
                 setIsEditMode(true);
             })
@@ -23,7 +23,7 @@ export default function ManageSensor() {
 
     const manageOnSubmit = (data: unknown) => {
         if (isEditMode) {
-            axios.put("http://localhost:8080/sensor/" + sensor?._id, data).then(
+            axios.put("/sensor/" + sensor?._id, data).then(
                 res => {
                     console.log("Sensor updated successfully:", res.data);
                     navigate("/sensor");
@@ -34,7 +34,7 @@ export default function ManageSensor() {
                 }
             )
         } else {
-            axios.post("http://localhost:8080/sensor", data).then(
+            axios.post("/sensor", data).then(
                 res => {
                     console.log("Sensor saved successfully:", res.data);
                 }

@@ -4,6 +4,7 @@ import {type ReactNode, useEffect, useState} from "react";
 import type SensorModel from "../model/SensorModel.ts";
 import type { CharacteristicModel, ServiceModel } from "../model/SensorModel.ts";
 import DeleteIcon from '@mui/icons-material/Delete';
+import DynamicFormBuilder from "./DynamicFormBuilder.tsx";
 
 export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
 
@@ -496,6 +497,7 @@ export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
             {
                 sensorSection()
             }
+            <DynamicFormBuilder />
         </form>
     );
 }

@@ -14,12 +14,13 @@ import "./ExperimentListCss.css";
 import {useNavigate} from "react-router";
 import axios from "../../configurations/AxiosConfig.ts";
 import type ExperimentModel from "../../model/ExperimentModel.ts";
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 export default function ExperimentList() {
     const navigate = useNavigate();
     const [rows, setRows] = useState<Array<ExperimentModel>>([]);
     useEffect(() => {
-        axios.get("http://localhost:8080/experiment").then(
+        axios.get("/experiment").then(
             res => {
                 setRows(res.data);
             }
@@ -65,6 +66,9 @@ export default function ExperimentList() {
                                     {row.experimentName}
                                 </TableCell>
                                 <TableCell>
+                                    <Button>
+                                        <ShowChartIcon onClick={() => navigate('/experiment/dashboard/' + row.id)}/>
+                                    </Button>
                                     <Button>
                                         <EditIcon onClick={() => navigate('/experiment/edit/' + row.id)}/>
                                     </Button>

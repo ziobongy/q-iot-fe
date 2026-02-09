@@ -27,7 +27,7 @@ export default function ManageExperimentForm(f: FormComponentModel<ExperimentMod
     );
     const [sensors, setSensors] = useState<SensorModel[]>([]);
     useEffect(() => {
-        axios.get("http://localhost:8080/sensor").then(
+        axios.get("/sensor").then(
             result => {
                 setSensors(result.data);
             }
@@ -171,7 +171,7 @@ export default function ManageExperimentForm(f: FormComponentModel<ExperimentMod
                     <div>
                         Caratteristiche da portare nell'esperimento
                     </div>
-                    <div className={'grid grid-cols-8 gap-1'}>
+                    <div className={'grid grid-cols-1 gap-1'}>
                         {
                             sensor.services.map((service, idx) => {
                                 return (

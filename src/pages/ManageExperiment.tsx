@@ -13,7 +13,7 @@ export default function ManageExperiment() {
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     useEffect(() => {
         if (params != null && params.experimentId != null) {
-            axios.get("http://localhost:8080/experiment/" + params.experimentId).then((response: AxiosResponse) => {
+            axios.get("/experiment/" + params.experimentId).then((response: AxiosResponse) => {
                 setExperiment(response.data);
                 setIsEditMode(true);
             })
@@ -21,11 +21,11 @@ export default function ManageExperiment() {
     }, [params]);
     const manageSubmit = (data: unknown) => {
         if (!isEditMode) {
-            axios.post("http://localhost:8080/experiment", data).then((response: AxiosResponse) => {
+            axios.post("/experiment", data).then((response: AxiosResponse) => {
                 console.log("Experiment saved successfully:", response.data);
             })
         } else {
-            axios.put("http://localhost:8080/experiment/" + params.experimentId, data).then((response: AxiosResponse) => {
+            axios.put("/experiment/" + params.experimentId, data).then((response: AxiosResponse) => {
                 console.log("Experiment updated successfully:", response.data);
                 navigate("/experiment");
             });

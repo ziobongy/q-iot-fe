@@ -4,6 +4,7 @@ import SensorList from "./pages/sensor-list/SensorList.tsx";
 import ManageSensor from "./pages/ManageSensor.tsx";
 import ExperimentList from "./pages/experiment-list/ExperimentList.tsx";
 import ManageExperiment from "./pages/ManageExperiment.tsx";
+import ExperimentDashboard from "./pages/ExperimentDashboard.tsx";
 
 const router = createBrowserRouter(
     [
@@ -34,6 +35,10 @@ const router = createBrowserRouter(
                 {
                     path: 'experiment/edit/:experimentId',
                     Component: ManageExperiment
+                },
+                {
+                    path: 'experiment/dashboard/:experimentId',
+                    Component: ExperimentDashboard
                 }
             ]
 

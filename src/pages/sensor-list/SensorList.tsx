@@ -19,7 +19,7 @@ export default function SensorList() {
     const navigate = useNavigate();
     const [rows, setRows] = useState<Array<SensorModel>>([]);
     useEffect(() => {
-        axios.get("http://localhost:8080/sensor").then(
+        axios.get("/sensor").then(
             res => {
                 setRows(res.data);
             }
