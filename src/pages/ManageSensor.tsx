@@ -5,6 +5,7 @@ import {useNavigate, useParams} from "react-router";
 import {useEffect, useState} from "react";
 import type {AxiosResponse} from "axios";
 import type SensorModel from "../model/SensorModel.ts";
+import type {FormField} from "../model/FormSchema.ts";
 
 export default function ManageSensor() {
 
@@ -12,6 +13,10 @@ export default function ManageSensor() {
     const params = useParams();
     const [sensor, setSensor] = useState<SensorModel | undefined>(undefined);
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
+
+    const [schema, setSchema] = useState<FormField[]>([]);
+    const [jsonResult, setJsonResult] = useState<any>(null);
+
     useEffect(() => {
         if (params != null && params.sensorId != null) {
             axios.get("/sensor/" + params.sensorId).then((response: AxiosResponse) => {
@@ -21,9 +26,13 @@ export default function ManageSensor() {
         }
     }, [params]);
 
-    const manageOnSubmit = (data: unknown) => {
+    const manageOnSubmit = (data: any) => {
         if (isEditMode) {
-            axios.put("/sensor/" + sensor?._id, data).then(
+            axios.put("/sensor/" + sensor?._id, {
+                ...data,
+                dynamicSchema: schema,
+                dynamicJson: jsonResult
+            }).then(
                 res => {
                     console.log("Sensor updated successfully:", res.data);
                     navigate("/sensor");
@@ -45,6 +54,10 @@ export default function ManageSensor() {
             )
         }
     }
+    const onUpdateDynamicForm = (result: {schema: FormField[], jsonResult: any}) => {
+        setSchema(result.schema);
+        setJsonResult(result.jsonResult);
+    }
     const manageOnCancel = () => {}
 
     return (
@@ -61,7 +74,7 @@ export default function ManageSensor() {
                     )
                 }
             </div>
-            <ManageSensorForm onCancel={manageOnCancel} onSubmit={manageOnSubmit} initialData={sensor}>
+            <ManageSensorForm onCancel={manageOnCancel} onSubmit={manageOnSubmit} initialData={sensor} onUpdate={onUpdateDynamicForm}>
             </ManageSensorForm>
             <div className={"flex w-full z-50 p-5 shadow sticky bottom-0 bg-white h-5"}>
                 <Button type='submit' form='manage-sensor-form' color='primary'>

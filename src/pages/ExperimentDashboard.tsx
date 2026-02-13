@@ -53,10 +53,18 @@ export default function ExperimentDashboard() {
                                                     const dashboardsData = response.data as Array<LineChartDataModel>;
                                                     dashboardsData.forEach(
                                                         (dashboard) => {
+                                                            const categories = (dashboard.categories == null) ? [] : dashboard.categories;
+                                                            const data = (dashboard.data == null) ? [] : dashboard.data;
+                                                            if (dashboardsRef.current[dashboard.id].categories == null) {
+                                                                dashboardsRef.current[dashboard.id].categories = [];
+                                                            }
+                                                            if (dashboardsRef.current[dashboard.id].data == null) {
+                                                                dashboardsRef.current[dashboard.id].data = [];
+                                                            }
                                                             dashboardsRef.current[dashboard.id] = {
                                                                 ...dashboardsRef.current[dashboard.id],
-                                                                categories: dashboardsRef.current[dashboard.id].categories.concat(dashboard.categories),
-                                                                data: dashboardsRef.current[dashboard.id].data.concat(dashboard.data)
+                                                                categories: dashboardsRef.current[dashboard.id].categories.concat(categories),
+                                                                data: dashboardsRef.current[dashboard.id].data.concat(data)
                                                             }
                                                             if (dashboardsRef.current[dashboard.id].categories.length > 10000) {
                                                                 dashboardsRef.current[dashboard.id].categories = dashboardsRef.current[dashboard.id].categories.slice(dashboardsRef.current[dashboard.id].categories.length - 10000);

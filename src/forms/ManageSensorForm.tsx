@@ -5,6 +5,7 @@ import type SensorModel from "../model/SensorModel.ts";
 import type { CharacteristicModel, ServiceModel } from "../model/SensorModel.ts";
 import DeleteIcon from '@mui/icons-material/Delete';
 import DynamicFormBuilder from "./DynamicFormBuilder.tsx";
+import type {FormField} from "../model/FormSchema.ts";
 
 export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
 
@@ -12,15 +13,30 @@ export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
         {
             name: '',
             shortName: '',
-            services: []
+            services: [],
+            dynamicSchema: [],
+            dynamicJson: {}
         }
     );
+
+
     useEffect(() => {
         if (f.initialData) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setSensor(f.initialData);
         }
     }, [f.initialData]);
+
+    const onUpdateDynamicForm = (result: {schema: FormField[], jsonResult: any}) => {
+        if (f.onUpdate) {
+            f.onUpdate(
+                {
+                    schema: result.schema,
+                    jsonResult: result.jsonResult
+                }
+            )
+        }
+    }
 
     const manageSubmit = (e: any) => {
         e.preventDefault();
@@ -497,7 +513,7 @@ export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
             {
                 sensorSection()
             }
-            <DynamicFormBuilder />
+            <DynamicFormBuilder schema={sensor.dynamicSchema} onUpdate={onUpdateDynamicForm}/>
         </form>
     );
 }

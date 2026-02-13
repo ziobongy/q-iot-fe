@@ -1,8 +1,9 @@
-import type {FormField} from '../model/FormSchema';
-import {isArrayField, isObjectField, isPrimitiveField} from '../model/FormSchema';
+import {type FormField, isPrimitiveField} from '../model/FormSchema';
+import {isArrayField, isObjectField} from '../model/FormSchema';
 import {Box, Button, IconButton, List, ListItem, MenuItem, Select, Stack, TextField, Typography} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import {createPrimitiveField, createObjectField, createArrayField} from './formHelpers';
 
 interface Props {
   field: FormField;
@@ -15,7 +16,7 @@ interface Props {
 
 export default function FieldEditor({field, depth = 0, onChange, onRemove, onAddChild, onAddArrayElement}: Props) {
 
-  const paddingLeft = depth * 16;
+  const paddingLeft = depth * 2;
 
   const onNameChange = (v: string) => {
     onChange({...field, name: v} as FormField);
@@ -75,7 +76,12 @@ export default function FieldEditor({field, depth = 0, onChange, onRemove, onAdd
                 </ListItem>
               ))}
             </List>
-            <Button size="small" onClick={() => onAddChild(field.id, {id: 'new_'+Date.now().toString(36), name: 'newField', type: 'string', value: ''} as FormField)} startIcon={<AddIcon />}>Add child</Button>
+            <Stack direction="row" spacing={1}>
+              <Button size="small" onClick={() => onAddChild(field.id, createPrimitiveField('newField','string'))} startIcon={<AddIcon />}>Add string child</Button>
+              <Button size="small" onClick={() => onAddChild(field.id, createPrimitiveField('newField','number'))} startIcon={<AddIcon />}>Add number child</Button>
+              <Button size="small" onClick={() => onAddChild(field.id, createObjectField('newObject'))} startIcon={<AddIcon />}>Add object child</Button>
+              <Button size="small" onClick={() => onAddChild(field.id, createArrayField('newArray','string'))} startIcon={<AddIcon />}>Add array child</Button>
+            </Stack>
           </Stack>
         </Box>
       )}
@@ -83,13 +89,26 @@ export default function FieldEditor({field, depth = 0, onChange, onRemove, onAdd
       {isArrayField(field) && (
         <Box sx={{mt:1}}>
           <Stack spacing={1}>
-            <Typography variant="caption">Array items (itemType: {(field as any).itemType})</Typography>
-            <Stack direction="row" spacing={1}>
-              <Button size="small" onClick={() => onAddArrayElement(field.id, (field as any).itemType === 'object' ? {id: 'new_'+Date.now().toString(36), name: 'item', type: 'object', children: []} as FormField : (field as any).itemType === 'string' ? '' : 0)} startIcon={<AddIcon />}>Add element</Button>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="caption">Array items</Typography>
+              <Select size="small" value={(field as any).itemType} onChange={e => {
+                const newType = e.target.value as ('string'|'number'|'object');
+                // reset items when changing type
+                onChange({...field, itemType: newType, items: []} as FormField);
+              }}>
+                <MenuItem value={'string'}>string</MenuItem>
+                <MenuItem value={'number'}>number</MenuItem>
+                <MenuItem value={'object'}>object</MenuItem>
+              </Select>
             </Stack>
+
+            <Stack direction="row" spacing={1}>
+              <Button size="small" onClick={() => onAddArrayElement(field.id, (field as any).itemType === 'object' ? createObjectField('item') : (field as any).itemType === 'string' ? '' : 0)} startIcon={<AddIcon />}>Add element</Button>
+            </Stack>
+
             <List>
               {(field as any).items.map((it: any, idx: number) => (
-                <ListItem key={idx} sx={{pl: 0}}>
+                <ListItem key={typeof it === 'object' ? (it as FormField).id : `prim-${idx}`} sx={{pl: 0}}>
                   {typeof it === 'object' ? (
                     <Box sx={{width: '100%'}}>
                       <FieldEditor key={(it as FormField).id} field={it as FormField} depth={depth + 1} onChange={(f) => {

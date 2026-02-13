@@ -1,3 +1,5 @@
+import type {FormField} from "./FormSchema.ts";
+
 export interface NameTypeModel {
     name: string;
     type: string;
@@ -24,5 +26,6 @@ export default interface SensorModel {
     name: string;
     shortName: string;
     services: Array<ServiceModel>;
-    [key: string]: unknown;
+    dynamicSchema?: Array<FormField>;
+    dynamicJson?: any;
 }
