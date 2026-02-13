@@ -4,8 +4,6 @@ import {type ReactNode, useEffect, useState} from "react";
 import type SensorModel from "../model/SensorModel.ts";
 import type { CharacteristicModel, ServiceModel } from "../model/SensorModel.ts";
 import DeleteIcon from '@mui/icons-material/Delete';
-import DynamicFormBuilder from "./DynamicFormBuilder.tsx";
-import type {FormField} from "../model/FormSchema.ts";
 
 export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
 
@@ -26,17 +24,6 @@ export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
             setSensor(f.initialData);
         }
     }, [f.initialData]);
-
-    const onUpdateDynamicForm = (result: {schema: FormField[], jsonResult: any}) => {
-        if (f.onUpdate) {
-            f.onUpdate(
-                {
-                    schema: result.schema,
-                    jsonResult: result.jsonResult
-                }
-            )
-        }
-    }
 
     const manageSubmit = (e: any) => {
         e.preventDefault();
@@ -508,12 +495,33 @@ export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
         );
     }
 
+    const updateJsonResult = (json: any) => {
+        f.onUpdate?.(
+            {
+                schema: [],
+                jsonResult: json
+            }
+        );
+    }
+
     return (
         <form id={'manage-sensor-form'} onSubmit={manageSubmit}>
             {
                 sensorSection()
             }
-            <DynamicFormBuilder schema={sensor.dynamicSchema} onUpdate={onUpdateDynamicForm}/>
+            <div className="mt-8">
+                <label htmlFor="json-textarea">JSON avanzato (dynamicJson)</label>
+                <TextField
+                    id="standard-multiline-flexible"
+                    label="Multiline"
+                    multiline
+                    maxRows={4}
+                    variant="standard"
+                    value={JSON.stringify(f.initialData?.dynamicJson)}
+                    onChange={(e) => updateJsonResult(JSON.parse(e.target.value))}
+                    fullWidth
+                />
+            </div>
         </form>
     );
 }

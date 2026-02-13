@@ -21,6 +21,8 @@ export default function ManageSensor() {
         if (params != null && params.sensorId != null) {
             axios.get("/sensor/" + params.sensorId).then((response: AxiosResponse) => {
                 setSensor(response.data);
+                setSchema([]);
+                setJsonResult((response.data as SensorModel).dynamicJson);
                 setIsEditMode(true);
             })
         }
