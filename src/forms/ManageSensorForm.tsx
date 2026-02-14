@@ -510,15 +510,20 @@ export default function ManageSensorForm(f: FormComponentModel<SensorModel>) {
                 sensorSection()
             }
             <div className="mt-8">
-                <label htmlFor="json-textarea">JSON avanzato (dynamicJson)</label>
+                <label htmlFor="json-textarea">Sezione Dinamica</label>
                 <TextField
-                    id="standard-multiline-flexible"
-                    label="Multiline"
+                    id="json-textarea"
                     multiline
-                    maxRows={4}
+                    maxRows={20}
                     variant="standard"
-                    value={JSON.stringify(f.initialData?.dynamicJson)}
-                    onChange={(e) => updateJsonResult(JSON.parse(e.target.value))}
+                    value={f.initialData?.dynamicJson ? JSON.stringify(f.initialData.dynamicJson, null, 2) : ''}
+                    onChange={(e) => {
+                        try {
+                            updateJsonResult(JSON.parse(e.target.value));
+                        } catch (err) {
+                            // Optionally handle parse error (e.g., show error state)
+                        }
+                    }}
                     fullWidth
                 />
             </div>

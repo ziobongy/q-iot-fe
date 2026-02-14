@@ -14,11 +14,59 @@ export default function ExperimentDashboard() {
     const params = useParams();
     const refsRef = useRef<RefsType>({});
     const [refs, setRefs] = useState<RefsType>({});
-    const intervalRefs = useRef<Array<number>>([]);
+    const intervalRefs = useRef<{[dashboardId: string]: number}>({});
     const [experiment, setExperiment] = useState<ExperimentModel | undefined>(undefined);
     const dashboardsRef = useRef<{[key: string]: LineChartDataModel}>({});
     const [dashboards, setDashboards] = useState<{[key: string]: LineChartDataModel}>({});
 
+
+    const runInterval = (service: string) => {
+        if (intervalRefs.current[service] != null) {
+            window.clearInterval(intervalRefs.current[service]);
+        }
+        const id = window.setInterval(() => {
+            axios.get("/dashboard/" + params.experimentId + "/device/" + service).then((response: AxiosResponse) => {
+                const dashboardsData = response.data as Array<LineChartDataModel>;
+                dashboardsData.forEach(
+                    (dashboard) => {
+                        const categories = (dashboard.categories == null) ? [] : dashboard.categories;
+                        const data = (dashboard.data == null) ? [] : dashboard.data;
+                        if (dashboardsRef.current[dashboard.id].categories == null) {
+                            dashboardsRef.current[dashboard.id].categories = [];
+                        }
+                        if (dashboardsRef.current[dashboard.id].data == null) {
+                            dashboardsRef.current[dashboard.id].data = [];
+                        }
+                        dashboardsRef.current[dashboard.id] = {
+                            ...dashboardsRef.current[dashboard.id],
+                            categories: dashboardsRef.current[dashboard.id].categories.concat(categories),
+                            data: dashboardsRef.current[dashboard.id].data.concat(data)
+                        }
+                        if (dashboardsRef.current[dashboard.id].categories.length > 10000) {
+                            dashboardsRef.current[dashboard.id].categories = dashboardsRef.current[dashboard.id].categories.slice(dashboardsRef.current[dashboard.id].categories.length - 10000);
+                        }
+                        if (dashboardsRef.current[dashboard.id].data.length > 10000) {
+                            dashboardsRef.current[dashboard.id].data = dashboardsRef.current[dashboard.id].data.slice(dashboardsRef.current[dashboard.id].data.length - 10000);
+                        }
+                        refsRef.current[dashboard.id].current!.getEchartsInstance().setOption({
+                            xAxis: {
+                                type: 'category',
+                                data: dashboardsRef.current[dashboard.id].categories,
+                            },
+                            series: [
+                                {
+                                    data: dashboardsRef.current[dashboard.id].data,
+                                    type: 'line',
+                                    smooth: true
+                                }
+                            ]
+                        });
+                    }
+                );
+            });
+        }, 5000);
+        intervalRefs.current[service] = id;
+    }
     useEffect(() => {
         if (params != null && params.experimentId != null) {
             axios.get("/experiment/" + params.experimentId).then((response: AxiosResponse) => {
@@ -48,50 +96,9 @@ export default function ExperimentDashboard() {
                                                 }
                                             });
                                             dashboardsRef.current[dashboard.id] = dashboard;
-                                            const id = window.setInterval(() => {
-                                                axios.get("/dashboard/" + params.experimentId + "/device/" + service).then((response: AxiosResponse) => {
-                                                    const dashboardsData = response.data as Array<LineChartDataModel>;
-                                                    dashboardsData.forEach(
-                                                        (dashboard) => {
-                                                            const categories = (dashboard.categories == null) ? [] : dashboard.categories;
-                                                            const data = (dashboard.data == null) ? [] : dashboard.data;
-                                                            if (dashboardsRef.current[dashboard.id].categories == null) {
-                                                                dashboardsRef.current[dashboard.id].categories = [];
-                                                            }
-                                                            if (dashboardsRef.current[dashboard.id].data == null) {
-                                                                dashboardsRef.current[dashboard.id].data = [];
-                                                            }
-                                                            dashboardsRef.current[dashboard.id] = {
-                                                                ...dashboardsRef.current[dashboard.id],
-                                                                categories: dashboardsRef.current[dashboard.id].categories.concat(categories),
-                                                                data: dashboardsRef.current[dashboard.id].data.concat(data)
-                                                            }
-                                                            if (dashboardsRef.current[dashboard.id].categories.length > 10000) {
-                                                                dashboardsRef.current[dashboard.id].categories = dashboardsRef.current[dashboard.id].categories.slice(dashboardsRef.current[dashboard.id].categories.length - 10000);
-                                                            }
-                                                            if (dashboardsRef.current[dashboard.id].data.length > 10000) {
-                                                                dashboardsRef.current[dashboard.id].data = dashboardsRef.current[dashboard.id].data.slice(dashboardsRef.current[dashboard.id].data.length - 10000);
-                                                            }
-                                                            refsRef.current[dashboard.id].current!.getEchartsInstance().setOption({
-                                                                xAxis: {
-                                                                    type: 'category',
-                                                                    data: dashboardsRef.current[dashboard.id].categories,
-                                                                },
-                                                                series: [
-                                                                    {
-                                                                        data: dashboardsRef.current[dashboard.id].data,
-                                                                        type: 'line',
-                                                                        smooth: true
-                                                                    }
-                                                                ]
-                                                            });
-                                                        }
-                                                    );
-                                                });
-                                            }, 5000);
-                                            intervalRefs.current.push(id);
                                         }
                                     );
+                                    runInterval(service);
                                 });
                             }
                         );
@@ -99,11 +106,7 @@ export default function ExperimentDashboard() {
                 )
             })
         }
-        return () => {
-            intervalRefs.current.forEach(id => clearInterval(id));
-            intervalRefs.current = [];
-        }
-    }, [params]);
+    }, []);
 
     const chartOptions = (dashboard: LineChartDataModel) => {
         return {
@@ -153,7 +156,11 @@ export default function ExperimentDashboard() {
                 (<ReactECharts ref={ref} key={dashboard.id} option={chartOptions(dashboard)}/>)
             )
         }
-        return result;
+        return (
+            <div className={'grid grid-cols-2'}>
+                {result}
+            </div>
+        );
     }
 
     return (
