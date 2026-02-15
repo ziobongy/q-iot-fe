@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# QIoT Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Architettura Generale
 
-Currently, two official plugins are available:
+Questo progetto è una web app sviluppata con **React**, **TypeScript** e **Vite**. Utilizza **Material UI** per la UI, React Router per la navigazione e Axios per la comunicazione con backend REST. L’architettura è modulare e orientata alla gestione di esperimenti e sensori IoT.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Struttura delle Cartelle Principali
 
-## React Compiler
+- **src/**: Contiene tutto il codice applicativo.
+  - **forms/**: Componenti per la gestione e la creazione dinamica di form (es. `DynamicFormBuilder`, `FieldEditor`, `ManageExperimentForm`, `ManageSensorForm`).
+  - **model/**: Definizioni dei modelli dati TypeScript (es. `ExperimentModel`, `SensorModel`, `FormSchema`).
+  - **pages/**: Pagine principali dell’applicazione, suddivise per funzionalità (es. dashboard, gestione esperimenti/sensori, liste).
+    - **experiment-list/** e **sensor-list/**: Liste di esperimenti e sensori.
+  - **theme/**: Gestione del tema grafico e layout principale (`MainTheme`).
+  - **configurations/**: Configurazioni globali, come l’istanza Axios per le chiamate HTTP.
+  - **App.tsx**: Entry point dell’applicazione, applica il tema e gestisce il layout.
+  - **main.tsx**: Bootstrap dell’app React e setup del router.
+  - **routes.tsx**: Definizione delle rotte principali dell’applicazione.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Componenti e Funzionalità Principali
 
-## Expanding the ESLint configuration
+- **Gestione Esperimenti**
+  - Creazione, modifica e visualizzazione di esperimenti tramite form dinamici (`ManageExperimentForm`).
+  - Visualizzazione delle liste (`ExperimentList`) e dashboard dati (`ExperimentDashboard`).
+- **Gestione Sensori**
+  - Creazione, modifica e visualizzazione di sensori (`ManageSensorForm`, `SensorList`).
+  - Supporto a schemi dinamici e dati JSON custom.
+- **Form Dinamici**
+  - `DynamicFormBuilder` e `FieldEditor` permettono la creazione e modifica di schemi di form JSON in modo visuale e dinamico.
+  - Helpers per la gestione di campi annidati, array, oggetti e validazione.
+- **Tema e Layout**
+  - `MainTheme` gestisce la navigazione principale (menu laterale, app bar) e applica il tema Material UI.
+- **Comunicazione con Backend**
+  - Axios configurato in `AxiosConfig.ts` per gestire autenticazione e chiamate API.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Modelli Dati Principali
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **ExperimentModel**: Definisce un esperimento con nome, dispositivi associati e servizi abilitati.
+- **SensorModel**: Definisce un sensore, le sue caratteristiche, servizi e schema dinamico.
+- **FormSchema**: Modello per la definizione di form dinamici (campi primitivi, oggetti, array).
+- **LineChartDataModel**: Modello per la visualizzazione di dati su grafici.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Routing
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Le rotte principali sono definite in `routes.tsx` e includono:
+- `/experiment`, `/experiment/create`, `/experiment/edit/:experimentId`, `/experiment/dashboard/:experimentId`
+- `/sensor`, `/sensor/create`, `/sensor/edit/:sensorId`
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Ogni rotta carica la pagina e il form/componenti appropriati.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Avvio del Progetto
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Installa le dipendenze:
+   ```sh
+   npm install
+   ```
+2. Avvia il server di sviluppo:
+   ```sh
+   npm run dev
+   ```
+
+## Note
+- Il progetto è pensato per essere facilmente estendibile con nuovi moduli e modelli dati.
+- La gestione dei form dinamici permette di adattare facilmente la UI a nuovi tipi di dati JSON.
+
+---
+Per dettagli su ogni componente, consultare i file sorgente nelle rispettive cartelle.
